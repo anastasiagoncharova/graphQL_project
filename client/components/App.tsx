@@ -1,11 +1,12 @@
 import React from 'react';
-import Header from './Header';
+import { Outlet } from 'react-router-dom';
+import Header from './shared/Header';
 
-const App = (props) => {
+const App = () => {
   return (
     <div className="container">
       <Header />
-      {props.children}
+      <Outlet />
     </div>
   );
 };

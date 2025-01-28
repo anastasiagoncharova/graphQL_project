@@ -1,43 +1,77 @@
 const graphql = require('graphql');
-const {
-  GraphQLObjectType,
-  GraphQLString
-} = graphql;
-const UserType = require('./types/user_type');
+const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLNonNull } = graphql;
 const AuthService = require('../services/auth');
+const Pet = require('../models/pet');
+const PetType = require('./types/pet_type');
+const AddPetInput = require('./types/add_pet');
+const EditPetInput = require('./types/edit_pet');
+const {
+  SignupPayloadType,
+  LoginPayloadType,
+  LogoutPayloadType,
+} = require('./types/auth_type');
 
 const mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
     signup: {
-      type: UserType,
+      type: SignupPayloadType,
       args: {
-        email: { type: GraphQLString },
-        password: { type: GraphQLString }
+        email: { type: new GraphQLNonNull(GraphQLString) },
+        password: { type: new GraphQLNonNull(GraphQLString) },
       },
       resolve(parentValue, { email, password }, req) {
-        return AuthService.signup({ email, password, req });
-      }
+        return AuthService.signup({ email, password, req }).then((user) => ({
+          user,
+        }));
+      },
     },
     logout: {
-      type: UserType,
+      type: LogoutPayloadType,
       resolve(parentValue, args, req) {
-        const { user } = req;
-        req.logout();
-        return user;
-      }
+        return new Promise((resolve, reject) => {
+          req.logout((err) => {
+            if (err) {
+              return reject(err);
+            }
+            resolve({ user: null });
+          });
+        });
+      },
     },
     login: {
-      type: UserType,
+      type: LoginPayloadType,
       args: {
-        email: { type: GraphQLString },
-        password: { type: GraphQLString }
+        email: { type: new GraphQLNonNull(GraphQLString) },
+        password: { type: new GraphQLNonNull(GraphQLString) },
       },
       resolve(parentValue, { email, password }, req) {
-        return AuthService.login({ email, password, req });
-      }
-    }
-  }
+        return AuthService.login({ email, password, req }).then((user) => ({
+          user,
+        }));
+      },
+    },
+    addPet: {
+      type: PetType,
+      args: {
+        input: { type: new GraphQLNonNull(AddPetInput) },
+      },
+      resolve(parentValue, { input }) {
+        const pet = new Pet(input);
+        return pet.save();
+      },
+    },
+    editPet: {
+      type: PetType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+        input: { type: new GraphQLNonNull(EditPetInput) },
+      },
+      async resolve(parentValue, { id, input }) {
+        return Pet.findByIdAndUpdate(id, input, { new: true });
+      },
+    },
+  },
 });
 
 module.exports = mutation;

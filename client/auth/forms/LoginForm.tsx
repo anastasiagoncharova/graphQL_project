@@ -32,7 +32,7 @@ const LoginForm: React.FC = () => {
 
   useEffect(() => {
     if (userData?.user) {
-      navigate('/dashboard');
+      navigate('/admin');
     }
   }, [userData?.user, history]);
 

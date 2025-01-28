@@ -9,7 +9,10 @@ export interface LogoutMutationResponse {
 export const LOGOUT_MUTATION = gql`
   mutation Logout {
     logout {
-      success
+      user {
+        id
+        email
+      }
     }
   }
 `;

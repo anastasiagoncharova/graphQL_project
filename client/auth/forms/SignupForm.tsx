@@ -24,7 +24,7 @@ const SignupForm: React.FC = () => {
   const [signup] = useMutation<SignupMutationResponse>(SIGNUP_MUTATION, {
     refetchQueries: [{ query: CURRENT_USER_QUERY }],
     onCompleted: () => {
-      navigate('/dashboard');
+      navigate('/admin');
     },
     onError: (error) => {
       const errorMessages = error.graphQLErrors.map((err) => err.message);

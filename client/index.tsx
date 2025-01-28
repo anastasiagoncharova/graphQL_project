@@ -11,7 +11,7 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import App from './components/App';
 import LoginForm from './auth/forms/LoginForm';
 import SignupForm from './auth/forms/SignupForm';
-import Dashboard from './components/Dashboard';
+import { AdminPanelPage } from './pages/AdminPanelPage';
 import requireAuth from './auth/hoc/requireAuth';
 
 const httpLink = createHttpLink({
@@ -22,6 +22,7 @@ const httpLink = createHttpLink({
 const client = new ApolloClient({
   link: httpLink,
   cache: new InMemoryCache({
+    addTypename: false,
     typePolicies: {
       Query: {
         fields: {
@@ -45,10 +46,10 @@ const Root: React.FC = () => {
             <Route path='login' element={<LoginForm />} />
             <Route path='signup' element={<SignupForm />} />
             <Route
-              path='dashboard'
+              path='admin'
               element={
                 <RequiredAuth>
-                  <Dashboard />
+                  <AdminPanelPage />
                 </RequiredAuth>
               }
             />

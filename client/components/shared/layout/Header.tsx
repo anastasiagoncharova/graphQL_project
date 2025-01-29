@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom';
 import {
   CURRENT_USER_QUERY,
   CurrentUserQuery,
-} from '../../graphql/queries/auth/CurrentUser';
+} from '../../../graphql/queries/auth/CurrentUser';
 import {
   LOGOUT_MUTATION,
   LogoutMutationResponse,
-} from '../../graphql/mutations/auth/Logout';
+} from '../../../graphql/mutations/auth/Logout';
 
 const Header: React.FC = () => {
   const { loading, data } = useQuery<CurrentUserQuery>(CURRENT_USER_QUERY);

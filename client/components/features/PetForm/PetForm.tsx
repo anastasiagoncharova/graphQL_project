@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { FormProvider, useForm, Controller } from 'react-hook-form';
 import { GET_PETS } from '../../../graphql/mutations/features/GetPets';
 import { ADD_PET } from '../../../graphql/mutations/features/AddPet';
 import { EDIT_PET } from '../../../graphql/mutations/features/EditPet';
 import { Pet } from '../../../models/Pet';
+import { Input } from '../../shared/components/Input';
+import { TextArea } from '../../shared/components/TextArea';
+import { Checkbox } from '../../shared/components/Checkbox';
+import { Button } from '../../shared/components/Button';
+import { Select } from '../../shared/components/Select';
 
 interface PetFormProps {
   onSave: () => void;
@@ -12,31 +18,41 @@ interface PetFormProps {
 
 export const PetForm: React.FC<PetFormProps> = ({ onSave }) => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-
   const isEditMode = !!id;
 
   const { data, loading } = useQuery(GET_PETS);
 
-  const [formState, setFormState] = useState<Partial<Pet>>({
-    name: '',
-    description: '',
-    gender: 'male',
-    type: 'dog',
-    age: 0,
-    vaccinated: false,
-    sterilized: false,
-    image: '',
+  const methods = useForm<Partial<Pet>>({
+    defaultValues: {
+      name: '',
+      description: '',
+      gender: 'male',
+      type: 'dog',
+      age: 1,
+      vaccinated: false,
+      sterilized: false,
+      image: '',
+    },
+    mode: 'onBlur',
   });
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = methods;
 
   useEffect(() => {
     if (isEditMode && data) {
       const petToEdit = data.pets.find((p: Pet) => p.id === id);
       if (petToEdit) {
-        setFormState(petToEdit);
+        Object.keys(petToEdit).forEach((key) => {
+          setValue(key as keyof Pet, petToEdit[key]);
+        });
       }
     }
-  }, [isEditMode, data, id]);
+  }, [isEditMode, data, id, setValue]);
 
   const [addPet] = useMutation(ADD_PET, {
     refetchQueries: [{ query: GET_PETS }],
@@ -46,21 +62,12 @@ export const PetForm: React.FC<PetFormProps> = ({ onSave }) => {
     refetchQueries: [{ query: GET_PETS }],
   });
 
-  const isFormValid =
-    !!formState.name?.trim() &&
-    !!formState.gender?.trim() &&
-    !!formState.type?.trim() &&
-    (formState.age ?? 0) > 0;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isFormValid) return;
-
+  const onSubmit = (formData: Partial<Pet>) => {
     if (isEditMode) {
-      const { id: _, ...input } = formState;
+      const { id: _, ...input } = formData;
       editPet({ variables: { id, input } });
     } else {
-      addPet({ variables: { input: formState } });
+      addPet({ variables: { input: formData } });
     }
     onSave();
   };
@@ -68,107 +75,101 @@ export const PetForm: React.FC<PetFormProps> = ({ onSave }) => {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <form className='container' onSubmit={handleSubmit}>
-      <h1 className='center-align'>
-        {isEditMode ? 'Edit Pet' : 'Add New Pet'}
-      </h1>
-      <div className='input-field'>
-        <label htmlFor='name'>Name *</label>
-        <input
-          type='text'
-          id='name'
-          value={formState.name || ''}
-          onChange={(e) => setFormState({ ...formState, name: e.target.value })}
+    <FormProvider {...methods}>
+      <form className='container' onSubmit={handleSubmit(onSubmit)}>
+        <h1 className='center-align'>
+          {isEditMode ? 'Edit Pet' : 'Add New Pet'}
+        </h1>
+        <Controller
+          name='name'
+          control={control}
+          rules={{ required: 'Name is required' }}
+          render={({ field }) => (
+            <Input label='Name *' id='name' {...field} error={errors.name} />
+          )}
         />
-      </div>
-      <div className='input-field'>
-        <label htmlFor='description'>Description</label>
-        <textarea
-          id='description'
-          className='materialize-textarea'
-          value={formState.description || ''}
-          onChange={(e) =>
-            setFormState({ ...formState, description: e.target.value })
-          }
+        <Controller
+          name='description'
+          control={control}
+          render={({ field }) => (
+            <TextArea label='Description' id='description' {...field} />
+          )}
         />
-      </div>
-      <div className='input-field'>
-        <label htmlFor='gender'>Gender *</label>
-        <select
-          className='browser-default'
-          value={formState.gender || ''}
-          onChange={(e) =>
-            setFormState({
-              ...formState,
-              gender: e.target.value as 'male' | 'female',
-            })
-          }
-        >
-          <option value='male'>Male</option>
-          <option value='female'>Female</option>
-        </select>
-      </div>
-      <div className='input-field'>
-        <label htmlFor='type'>Type *</label>
-        <select
-          className='browser-default'
-          value={formState.type || ''}
-          onChange={(e) =>
-            setFormState({
-              ...formState,
-              type: e.target.value as 'dog' | 'cat',
-            })
-          }
-        >
-          <option value='dog'>Dog</option>
-          <option value='cat'>Cat</option>
-        </select>
-      </div>
-      <div className='input-field'>
-        <label htmlFor='age'>Age *</label>
-        <input
-          type='number'
-          id='age'
-          value={formState.age || ''}
-          onChange={(e) =>
-            setFormState({
-              ...formState,
-              age: parseInt(e.target.value, 10) || 0,
-            })
-          }
+        <Controller
+          name='gender'
+          control={control}
+          rules={{ required: 'Gender is required' }}
+          render={({ field }) => (
+            <Select
+              label='Gender *'
+              id='gender'
+              options={['male', 'female']}
+              {...field}
+              error={errors.gender}
+            />
+          )}
         />
-      </div>
-      <p>
-        <label>
-          <input
-            type='checkbox'
-            checked={formState.vaccinated}
-            onChange={(e) =>
-              setFormState({ ...formState, vaccinated: e.target.checked })
-            }
-          />
-          <span>Vaccinated</span>
-        </label>
-      </p>
-      <p>
-        <label>
-          <input
-            type='checkbox'
-            checked={formState.sterilized}
-            onChange={(e) =>
-              setFormState({ ...formState, sterilized: e.target.checked })
-            }
-          />
-          <span>Sterilized</span>
-        </label>
-      </p>
-      <button
-        className='btn waves-effect waves-light'
-        type='submit'
-        disabled={!isFormValid}
-      >
-        {isEditMode ? 'Save Changes' : 'Add Pet'}
-      </button>
-    </form>
+        <Controller
+          name='type'
+          control={control}
+          rules={{ required: 'Type is required' }}
+          render={({ field }) => (
+            <Select
+              label='Type *'
+              id='type'
+              options={['dog', 'cat']}
+              {...field}
+              error={errors.type}
+            />
+          )}
+        />
+        <Controller
+          name='age'
+          control={control}
+          rules={{
+            required: 'Age is required',
+            min: { value: 1, message: 'Age must be greater than 0' },
+          }}
+          render={({ field }) => (
+            <Input
+              label='Age *'
+              id='age'
+              type='number'
+              {...field}
+              onChange={(e) => {
+                field.onChange(e);
+                methods.trigger('age');
+              }}
+              error={errors.age}
+            />
+          )}
+        />
+        <Controller
+          name='vaccinated'
+          control={control}
+          render={({ field }) => (
+            <Checkbox
+              label='Vaccinated'
+              id='vaccinated'
+              checked={field.value}
+              onChange={(e) => field.onChange(e.target.checked)}
+            />
+          )}
+        />
+        <Controller
+          name='sterilized'
+          control={control}
+          render={({ field }) => (
+            <Checkbox
+              label='Sterilized'
+              id='sterilized'
+              checked={field.value}
+              onChange={(e) => field.onChange(e.target.checked)}
+            />
+          )}
+        />
+        <Button label={isEditMode ? 'Save Changes' : 'Add Pet'} type='submit' />
+      </form>
+    </FormProvider>
   );
 };

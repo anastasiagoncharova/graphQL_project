@@ -7,7 +7,7 @@ import {
   createHttpLink,
 } from '@apollo/client';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-
+import './styles/global.scss';
 import App from './components/App';
 import LoginForm from './auth/forms/LoginForm';
 import SignupForm from './auth/forms/SignupForm';
@@ -42,11 +42,11 @@ const Root: React.FC = () => {
     <ApolloProvider client={client}>
       <Router>
         <Routes>
-          <Route path='/' element={<App />}>
-            <Route path='login' element={<LoginForm />} />
-            <Route path='signup' element={<SignupForm />} />
+          <Route path="/" element={<App />}>
+            <Route path="login" element={<LoginForm />} />
+            <Route path="signup" element={<SignupForm />} />
             <Route
-              path='admin'
+              path="admin/*"
               element={
                 <RequiredAuth>
                   <AdminPanelPage />

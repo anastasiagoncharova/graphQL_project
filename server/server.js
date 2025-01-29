@@ -10,7 +10,7 @@ const schema = require('./schema/schema');
 
 const app = express();
 
-const MONGO_URI = 'mongodb+srv://goncharova_anastasia:YTVWSdJSLC1yPIUb@cluster0.nxti6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const MONGO_URI = '';
 
 mongoose.Promise = global.Promise;
 

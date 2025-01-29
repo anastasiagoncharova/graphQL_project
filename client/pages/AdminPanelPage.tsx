@@ -1,29 +1,26 @@
 import React, { useState } from 'react';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+  Navigate,
+} from 'react-router-dom';
 import { PetDetails } from '../components/features/PetDetails/PetDetails';
 import { PetForm } from '../components/features/PetForm/PetForm';
 import { PetList } from '../components/features/PetList/PetList';
-import { Pet } from '../models/Pet';
 
 export const AdminPanelPage: React.FC = () => {
-  const [editingPet, setEditingPet] = useState<Pet | null>(null);
-  const [viewingPetId, setViewingPetId] = useState<number | null>(null);
-  const [addingPet, setAddingPet] = useState<boolean>(false);
-
+  const navigate = useNavigate();
   return (
-    <div>
-      {viewingPetId ? (
-        <PetDetails petId={viewingPetId} />
-      ) : editingPet ? (
-        <PetForm pet={editingPet} onSave={() => setEditingPet(null)} />
-      ) : addingPet ? (
-        <PetForm onSave={() => setAddingPet(false)} />
-      ) : (
-        <PetList
-          onEdit={(pet) => setEditingPet(pet)}
-          onView={(id) => setViewingPetId(id)}
-          onAdd={() => setAddingPet(true)}
-        />
-      )}
-    </div>
+    <Routes>
+      <Route path="" element={<PetList />} />
+      <Route path="form" element={<PetForm onSave={() => navigate('/admin')} />} />
+      <Route path="form/:id" element={<PetForm onSave={() => navigate('/admin')} />} />
+      <Route path="view/:id" element={<PetDetails />} />
+      <Route path="*" element={<Navigate to="" replace />} />
+    </Routes>
   );
 };
+
+export default AdminPanelPage;

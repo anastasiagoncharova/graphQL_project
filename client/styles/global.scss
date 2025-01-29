@@ -1,0 +1,150 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f9f9f9;
+  color: #333;
+  line-height: 1.6;
+}
+
+.nav-wrapper {
+  background-color: #1976d2;
+  padding: 0 20px;
+}
+
+.nav-wrapper a {
+  color: white !important;
+  font-weight: 500;
+}
+
+button {
+  border-radius: 8px !important;
+  transition: all 0.3s ease-in-out !important;
+}
+
+button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.card {
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+table.striped {
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+table.striped th {
+  background-color: #1976d2;
+  color: white;
+  text-align: left;
+  padding: 12px;
+}
+
+table.striped td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+table.striped tr:hover {
+  background-color: #f1f1f1;
+}
+
+textarea,
+select {
+  border: 1px solid #ddd;
+  border-radius: 6px !important;
+  padding: 10px;
+  width: 100%;
+  margin-bottom: 15px;
+  background-color: #fff;
+  transition: border-color 0.3s ease;
+}
+
+textarea:focus,
+select:focus {
+  border-color: #1976d2 !important;
+  outline: none;
+  box-shadow: 0 0 4px rgba(25, 118, 210, 0.3);
+}
+
+input[type='checkbox'] + span,
+input[type='radio'] + span {
+  color: #555 !important;
+}
+
+input[type='checkbox']:checked + span,
+input[type='radio']:checked + span {
+  color: #1976d2 !important;
+}
+
+.modal {
+  border-radius: 12px;
+  padding: 20px;
+}
+
+footer {
+  background-color: #1976d2;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+[type='checkbox']:not(:checked),
+[type='checkbox']:checked {
+  position: relative;
+  left: 0;
+  opacity: 1;
+  margin-right: 5px;
+  width: 18px;
+  height: 18px;
+  vertical-align: sub;
+}
+
+.input-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+  margin-top: 20px;
+}
+
+.input-field label {
+  position: absolute;
+  top: -25px;
+  font-weight: bold;
+  color: #333;
+}
+
+.input-field input,
+.input-field select,
+.input-field textarea {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.input-field input:focus,
+.input-field select:focus,
+.input-field textarea:focus {
+  border-color: #1976d2;
+  outline: none;
+  box-shadow: 0 0 4px rgba(25, 118, 210, 0.3);
+}
+
+.checkbox-container {
+  margin-bottom: 30px;
+}

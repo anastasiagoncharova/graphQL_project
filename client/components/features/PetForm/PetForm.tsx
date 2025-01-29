@@ -1,26 +1,42 @@
-import React, { useState } from 'react';
-import { useMutation } from '@apollo/client';
+import React, { useState, useEffect } from 'react';
+import { useMutation, useQuery } from '@apollo/client';
+import { useNavigate, useParams } from 'react-router-dom';
 import { GET_PETS } from '../../../graphql/mutations/features/GetPets';
 import { ADD_PET } from '../../../graphql/mutations/features/AddPet';
-import { EDIT_PET } from '../../../graphql/mutations/features/EditPet'; 
+import { EDIT_PET } from '../../../graphql/mutations/features/EditPet';
 import { Pet } from '../../../models/Pet';
 
-export const PetForm: React.FC<{ pet?: Pet; onSave: () => void }> = ({
-  pet,
-  onSave,
-}) => {
-  const [formState, setFormState] = useState<Partial<Pet>>(
-    pet || {
-      name: '',
-      description: '',
-      gender: 'male',
-      type: 'dog',
-      age: 0,
-      vaccinated: false,
-      sterilized: false,
-      image: '',
+interface PetFormProps {
+  onSave: () => void;
+}
+
+export const PetForm: React.FC<PetFormProps> = ({ onSave }) => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
+  const isEditMode = !!id;
+
+  const { data, loading } = useQuery(GET_PETS);
+
+  const [formState, setFormState] = useState<Partial<Pet>>({
+    name: '',
+    description: '',
+    gender: 'male',
+    type: 'dog',
+    age: 0,
+    vaccinated: false,
+    sterilized: false,
+    image: '',
+  });
+
+  useEffect(() => {
+    if (isEditMode && data) {
+      const petToEdit = data.pets.find((p: Pet) => p.id === id);
+      if (petToEdit) {
+        setFormState(petToEdit);
+      }
     }
-  );
+  }, [isEditMode, data, id]);
 
   const [addPet] = useMutation(ADD_PET, {
     refetchQueries: [{ query: GET_PETS }],
@@ -30,48 +46,57 @@ export const PetForm: React.FC<{ pet?: Pet; onSave: () => void }> = ({
     refetchQueries: [{ query: GET_PETS }],
   });
 
+  const isFormValid =
+    !!formState.name?.trim() &&
+    !!formState.gender?.trim() &&
+    !!formState.type?.trim() &&
+    (formState.age ?? 0) > 0;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pet) {
-      const { id, ...input } = formState;
-      editPet({ variables: { id: pet.id, input } });
+    if (!isFormValid) return;
+
+    if (isEditMode) {
+      const { id: _, ...input } = formState;
+      editPet({ variables: { id, input } });
     } else {
       addPet({ variables: { input: formState } });
     }
     onSave();
   };
 
+  if (loading) return <p>Loading...</p>;
+
   return (
     <form className='container' onSubmit={handleSubmit}>
-      <h1 className='center-align'>{pet ? 'Edit Pet' : 'Add New Pet'}</h1>
+      <h1 className='center-align'>
+        {isEditMode ? 'Edit Pet' : 'Add New Pet'}
+      </h1>
       <div className='input-field'>
+        <label htmlFor='name'>Name *</label>
         <input
           type='text'
           id='name'
-          value={formState.name}
+          value={formState.name || ''}
           onChange={(e) => setFormState({ ...formState, name: e.target.value })}
         />
-        <label htmlFor='name' className={pet ? 'active' : ''}>
-          Name
-        </label>
       </div>
       <div className='input-field'>
+        <label htmlFor='description'>Description</label>
         <textarea
           id='description'
           className='materialize-textarea'
-          value={formState.description}
+          value={formState.description || ''}
           onChange={(e) =>
             setFormState({ ...formState, description: e.target.value })
           }
         />
-        <label htmlFor='description' className={pet ? 'active' : ''}>
-          Description
-        </label>
       </div>
       <div className='input-field'>
+        <label htmlFor='gender'>Gender *</label>
         <select
           className='browser-default'
-          value={formState.gender}
+          value={formState.gender || ''}
           onChange={(e) =>
             setFormState({
               ...formState,
@@ -84,9 +109,10 @@ export const PetForm: React.FC<{ pet?: Pet; onSave: () => void }> = ({
         </select>
       </div>
       <div className='input-field'>
+        <label htmlFor='type'>Type *</label>
         <select
           className='browser-default'
-          value={formState.type}
+          value={formState.type || ''}
           onChange={(e) =>
             setFormState({
               ...formState,
@@ -99,17 +125,18 @@ export const PetForm: React.FC<{ pet?: Pet; onSave: () => void }> = ({
         </select>
       </div>
       <div className='input-field'>
+        <label htmlFor='age'>Age *</label>
         <input
           type='number'
           id='age'
-          value={formState.age}
+          value={formState.age || ''}
           onChange={(e) =>
-            setFormState({ ...formState, age: parseInt(e.target.value, 10) })
+            setFormState({
+              ...formState,
+              age: parseInt(e.target.value, 10) || 0,
+            })
           }
         />
-        <label htmlFor='age' className={pet ? 'active' : ''}>
-          Age
-        </label>
       </div>
       <p>
         <label>
@@ -135,21 +162,12 @@ export const PetForm: React.FC<{ pet?: Pet; onSave: () => void }> = ({
           <span>Sterilized</span>
         </label>
       </p>
-      <div className='input-field'>
-        <input
-          type='text'
-          id='image'
-          value={formState.image}
-          onChange={(e) =>
-            setFormState({ ...formState, image: e.target.value })
-          }
-        />
-        <label htmlFor='image' className={pet ? 'active' : ''}>
-          Image URL
-        </label>
-      </div>
-      <button className='btn waves-effect waves-light' type='submit'>
-        {pet ? 'Save Changes' : 'Add Pet'}
+      <button
+        className='btn waves-effect waves-light'
+        type='submit'
+        disabled={!isFormValid}
+      >
+        {isEditMode ? 'Save Changes' : 'Add Pet'}
       </button>
     </form>
   );

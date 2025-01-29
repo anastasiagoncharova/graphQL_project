@@ -1,16 +1,12 @@
 import React from 'react';
 import { useQuery, useMutation } from '@apollo/client';
+import { Link } from 'react-router-dom';
 import { GET_PETS } from '../../../graphql/mutations/features/GetPets';
 import { DELETE_PET } from '../../../graphql/mutations/features/DeletePet';
 import { Pet } from '../../../models/Pet';
 
-export const PetList: React.FC<{
-  onEdit: (pet: Pet) => void;
-  onView: (petId: number) => void;
-  onAdd: () => void;
-}> = ({ onEdit, onView, onAdd }) => {
+export const PetList: React.FC = () => {
   const { data, loading, error } = useQuery(GET_PETS);
-  console.log(data);
   const [deletePet] = useMutation(DELETE_PET, {
     refetchQueries: [{ query: GET_PETS }],
   });
@@ -18,20 +14,16 @@ export const PetList: React.FC<{
   if (loading) return <p>Loading pets...</p>;
   if (error) return <p>Error fetching pets: {error.message}</p>;
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     deletePet({ variables: { id } });
   };
 
   return (
     <div className='container'>
       <h1 className='center-align'>Pet List</h1>
-      <button
-        className='btn green lighten-1'
-        onClick={onAdd}
-        style={{ marginBottom: '20px' }}
-      >
+      <Link to="/admin/form" className='btn green lighten-1' style={{ marginBottom: '20px' }}>
         Add Pet
-      </button>
+      </Link>
       {data.pets.length === 0 ? (
         <p className='center-align'>Pets not found</p>
       ) : (
@@ -53,19 +45,12 @@ export const PetList: React.FC<{
                 <td>{pet.gender}</td>
                 <td>{pet.age}</td>
                 <td>
-                  <button
-                    className='btn blue lighten-1'
-                    onClick={() => onView(pet.id)}
-                  >
+                  <Link to={`/admin/view/${pet.id}`} className='btn blue lighten-1'>
                     View
-                  </button>
-                  <button
-                    className='btn green lighten-1'
-                    onClick={() => onEdit(pet)}
-                    style={{ marginLeft: '10px' }}
-                  >
+                  </Link>
+                  <Link to={`/admin/form/${pet.id}`} className='btn green lighten-1' style={{ marginLeft: '10px' }}>
                     Edit
-                  </button>
+                  </Link>
                   <button
                     className='btn red lighten-1'
                     onClick={() => handleDelete(pet.id)}

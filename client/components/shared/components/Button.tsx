@@ -1,16 +1,18 @@
 import React from 'react';
-import { useFormContext } from 'react-hook-form';
 
 export const Button: React.FC<{
   label: string;
   type?: 'button' | 'submit';
-}> = ({ label, type = 'button' }) => {
-  const { formState } = useFormContext();
+  onClick?: () => void;
+  className?: string;
+  disabled?: boolean;
+}> = ({ label, type = 'button', onClick, className, disabled }) => {
   return (
     <button
-      className='btn waves-effect waves-light'
+      className={`btn waves-effect waves-light ${className}`.trim()}
       type={type}
-      disabled={!formState.isValid}
+      onClick={onClick}
+      disabled={disabled}
     >
       {label}
     </button>

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { FormProvider, useForm, Controller } from 'react-hook-form';
 import { GET_PETS } from '../../../graphql/mutations/features/GetPets';
 import { ADD_PET } from '../../../graphql/mutations/features/AddPet';
@@ -17,6 +17,7 @@ interface PetFormProps {
 }
 
 export const PetForm: React.FC<PetFormProps> = ({ onSave }) => {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditMode = !!id;
 
@@ -137,10 +138,26 @@ export const PetForm: React.FC<PetFormProps> = ({ onSave }) => {
               type='number'
               {...field}
               onChange={(e) => {
-                field.onChange(e);
+                const value = e.target.value
+                  ? parseInt(e.target.value, 10)
+                  : '';
+                field.onChange(value);
                 methods.trigger('age');
               }}
               error={errors.age}
+            />
+          )}
+        />
+        <Controller
+          name='image'
+          control={control}
+          render={({ field }) => (
+            <Input
+              label='Image URL'
+              id='image'
+              type='text'
+              {...field}
+              error={errors.image}
             />
           )}
         />
@@ -168,7 +185,16 @@ export const PetForm: React.FC<PetFormProps> = ({ onSave }) => {
             />
           )}
         />
-        <Button label={isEditMode ? 'Save Changes' : 'Add Pet'} type='submit' />
+        <Button
+          label={isEditMode ? 'Save Changes' : 'Add Pet'}
+          disabled={!methods.formState.isValid}
+          type='submit'
+        />
+        <Button
+          label='Back'
+          onClick={() => navigate('/admin')}
+          className='blue lighten-1'
+        />
       </form>
     </FormProvider>
   );

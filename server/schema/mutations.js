@@ -5,6 +5,7 @@ const Pet = require('../models/pet');
 const PetType = require('./types/pet_type');
 const AddPetInput = require('./types/add_pet');
 const EditPetInput = require('./types/edit_pet');
+const DeletePetInput = require('./types/delete_pet');
 const {
   SignupPayloadType,
   LoginPayloadType,
@@ -69,6 +70,19 @@ const mutation = new GraphQLObjectType({
       },
       async resolve(parentValue, { id, input }) {
         return Pet.findByIdAndUpdate(id, input, { new: true });
+      },
+    },
+    deletePet: {
+      type: PetType,
+      args: {
+        input: { type: new GraphQLNonNull(DeletePetInput) },
+      },
+      async resolve(parentValue, { input }) {
+        const deletedPet = await Pet.findByIdAndDelete(input.id);
+        if (!deletedPet) {
+          throw new Error('Pet not found');
+        }
+        return deletedPet;
       },
     },
   },

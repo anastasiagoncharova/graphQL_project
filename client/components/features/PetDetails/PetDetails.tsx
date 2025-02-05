@@ -3,6 +3,7 @@ import { useQuery } from '@apollo/client';
 import { useParams, useNavigate } from 'react-router-dom';
 import { GET_PETS } from '../../../graphql/mutations/features/GetPets';
 import { Pet } from '../../../models/Pet';
+import { Button } from '../../shared/components/Button';
 
 export const PetDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,12 +33,16 @@ export const PetDetails: React.FC = () => {
           <p>Sterilized: {pet.sterilized ? 'Yes' : 'No'}</p>
         </div>
         <div className='card-action'>
-          <button
-            className='btn blue lighten-1'
+          <Button
+            label='Back'
             onClick={() => navigate('/admin')}
-          >
-            Back
-          </button>
+            className='blue lighten-1'
+          />
+          <Button
+            label='Edit'
+            onClick={() => navigate(`/admin/form/${pet.id}`)}
+            className='btn green lighten-1'
+          />
         </div>
       </div>
     </div>

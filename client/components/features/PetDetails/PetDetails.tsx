@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@apollo/client';
 import { useParams, useNavigate } from 'react-router-dom';
-import { GET_PETS } from '../../../graphql/mutations/features/GetPets';
+import { GET_PETS } from '../../../graphql/queries/features/GetPets';
 import { Pet } from '../../../models/Pet';
 import { Button } from '../../shared/components/Button';
 

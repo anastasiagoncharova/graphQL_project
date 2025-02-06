@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FormProvider, useForm, Controller } from 'react-hook-form';
-import { GET_PETS } from '../../../graphql/mutations/features/GetPets';
+import { GET_PETS } from '../../../graphql/queries/features/GetPets';
 import { ADD_PET } from '../../../graphql/mutations/features/AddPet';
 import { EDIT_PET } from '../../../graphql/mutations/features/EditPet';
 import { Pet } from '../../../models/Pet';

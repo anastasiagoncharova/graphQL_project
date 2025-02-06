@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
 import { Link } from 'react-router-dom';
-import { GET_PETS } from '../../../graphql/mutations/features/GetPets';
+import { GET_PETS } from '../../../graphql/queries/features/GetPets';
 import { DELETE_PET } from '../../../graphql/mutations/features/DeletePet';
 import { Pet } from '../../../models/Pet';
 import { Table } from '../../shared/components/Table';
